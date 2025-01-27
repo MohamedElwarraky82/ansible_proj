@@ -1,0 +1,14 @@
+- name: Create temp nodes folder in user folder
+  tags: master,node
+  win_file:
+    path: "C:\\Users\\Elwarraky\\nodes\\{{ item[0] }}"
+    state: directory
+  loop: '{{ r1 }}'
+
+- name: Create Config file for jenkins node
+  tags: master,node
+  win_template:
+    src: config.xml.j2
+    dest: 'C:\\Users\\Elwarraky\\nodes\\{{ item[0] }}\\config.xml'
+  loop: '{{ r1 }}'
+  notify: Add Nodes to Jenkins

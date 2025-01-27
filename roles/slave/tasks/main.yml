@@ -1,0 +1,108 @@
+- name: Install Git
+  block:
+    - name: Check if git is installed
+      tags: slaves,git
+      win_reg_stat:
+        path: HKLM:\SOFTWARE\GitForWindows
+      register: git_reg_path
+
+    - name: Status Of Git
+      tags: slaves,git
+      debug:
+        msg: Git is already installed
+      when: git_reg_path.exists == true
+
+    - name: Installing Git 
+      tags: slaves,git
+      win_chocolatey:
+        name:  git.install
+        state: latest
+      register: git_debug_reg
+      when: git_reg_path.exists == false
+
+    - name: Status Of Git
+      tags: slaves,git
+      debug:
+        msg: Git is installed with return value {{git_debug_reg.stdout}}
+      when: git_reg_path.exists == false 
+
+    - name: Configure Git
+      tags: slaves,git
+      win_template:
+        src: .gitconfig.j2
+        dest: "C:\\Users\\{{ ansible_user }}\\.gitconfig"
+      when: git_reg_path.exists == false
+
+- name: Install JDK21
+  block: 
+    - name: Check if JDK is installed
+      tags: slaves,jdk
+      win_reg_stat:
+        path: HKCR:\Installer\Products\07495984CD853BA418A22B61139EFC88
+      register: jdk_reg_path
+  
+    - name: Status Of JDK
+      tags: slaves,jdk
+      debug:
+        msg: JDK is already installed
+      when: jdk_reg_path.exists == true
+
+    - name: Installing JDK
+      tags: slaves,jdk
+      win_chocolatey:
+        name: zulu21
+        state: present
+        version: 21.38.21
+      register: jdk_debug_reg
+      when: jdk_reg_path.exists == false
+
+    - name: Status Of JDK
+      tags: slaves,jdk
+      debug:
+        msg: JDK is installed with return value {{jdk_debug_reg.rc}}
+      when: jdk_reg_path.exists == false 
+
+
+- name: Install Arduino-CLI
+  block: 
+    - name: Check if Arduino-CLI is installed
+      tags: slaves,arduino
+      win_stat:
+        path: "C:\\ProgramData\\chocolatey\\bin\\arduino-cli.exe"
+      register: arduino_reg_path
+  
+    - name: Status Of Arduino-CLI
+      tags: slaves,arduino
+      debug:
+        msg: Arduino-CLI is already installed
+      when: arduino_reg_path.stat.exists == true
+    
+    - name: Installing Arduino-CLI
+      tags: slaves,arduino
+      win_chocolatey:
+        name: arduino-cli
+        version: 1.1.1
+        architecture: x64
+        state: present
+      register: arduino_debug_reg
+      when: arduino_reg_path.stat.exists == false
+
+    - name: Status Of Arduino-CLI
+      tags: slaves,arduino
+      debug:
+        msg: Arduino-CLI is installed with return value {{arduino_debug_reg.rc}}
+      when: arduino_reg_path.stat.exists == false
+
+- name: Install TexLive
+  tags: slaves,texlive
+  win_chocolatey:
+    name: texlive
+    state: present
+    version: 2024.20240802.0
+
+- name: Install python
+  tags: slaves,python
+  win_chocolatey:
+    name: python
+    version: 3.14.0-a4
+    state: present

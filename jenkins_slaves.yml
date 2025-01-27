@@ -1,0 +1,30 @@
+---
+- hosts: all
+  gather_facts: no
+  pre_tasks:
+  - name: Install Chocolatey
+    block:
+      - name: install Chocolatey
+        tags: windows,choco
+        win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+      - name: Ensure Choco itself is installed
+        tags: windows,choco
+        win_chocolatey:
+          name: chocolatey
+        register: choco_debug_reg
+
+      - name: Status of Choco
+        tags: windows,choco
+        debug:
+          msg: choco is already installed with return value {{choco_debug_reg.rc}}
+
+- hosts: slaves
+  gather_facts: no
+  roles:
+    - slave
+
+- hosts: master
+  gather_facts: no
+  roles:
+    - master

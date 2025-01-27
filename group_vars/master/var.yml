@@ -1,0 +1,15 @@
+ansible_user: Elwarraky
+ansible_password: '{{vault_ansible_pass}}'
+ansible_connection: winrm
+ansible_winrm_transport: ntlm
+ansible_port: 5985
+
+slaves_names:
+  - 'build_node'
+  - 'doc_node'
+
+slaves_labels:
+  - build
+  - doc
+
+r1: "{{ query('together', slaves_names, groups['slaves'], slaves_labels) }}"

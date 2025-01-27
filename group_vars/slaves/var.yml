@@ -1,0 +1,3 @@
+ansible_shell_type: cmd
+ansible_user: ansible
+ansible_emali: ansible.devops@gmail.com

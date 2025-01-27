@@ -1,0 +1,6 @@
+- name: Add Nodes to Jenkins
+  win_shell: java -jar jenkins-cli.jar -s http://{{groups['master'][0]}}:9090/ create-node {{ item[0] }} < nodes\\{{item[0]}}\\config.xml
+  args:
+    executable: cmd
+    chdir: C:\\Users\\Elwarraky
+  loop: '{{ r1 }}'
